@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JAMY AI - Personal Assistant Dashboard</title>
+    <link
+      rel="icon"
+      href="logo.png"
+      type="image/x-icon"
+      style="border-radius: 50%"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* --- Color Schemes and Variables --- */
+      :root {
+        /* Color Schemes for Different Modes */
+        --education-primary: #3b82f6;
+        --education-secondary: #60a5fa;
+        --education-light: #dbeafe;
+        --education-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+
+        --health-primary: #10b981;
+        --health-secondary: #34d399;
+        --health-light: #d1fae5;
+        --health-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+        --relationship-primary: #f59e0b;
+        --relationship-secondary: #fbbf24;
+        --relationship-light: #fef3c7;
+        --relationship-gradient: linear-gradient(
+          135deg,
+          #f59e0b 0%,
+          #d97706 100%
+        );
+
+        /* Base Colors */
+        --primary-bg: #f8fafc;
+        --secondary-bg: #ffffff;
+        --sidebar-bg: #1e293b;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --text-light: #94a3b8;
+        --border-color: #e2e8f0;
+        --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1),
+          0 1px 2px rgba(0, 0, 0, 0.06);
+        --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1),
+          0 2px 4px rgba(0, 0, 0, 0.06);
+        --shadow-heavy: 0 10px 15px rgba(0, 0, 0, 0.1),
+          0 4px 6px rgba(0, 0, 0, 0.05);
+
+        /* Current Mode (default to education) */
+        --current-primary: var(--education-primary);
+        --current-secondary: var(--education-secondary);
+        --current-light: var(--education-light);
+        --current-gradient: var(--education-gradient);
+      }
+
+      /* Dark Theme */
+      body.dark-theme {
+        --primary-bg: #1f2937;
+        --secondary-bg: #2d3748;
+        --sidebar-bg: #111827;
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-light: #9ca3af;
+        --border-color: #4b5563;
+        --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.2),
+          0 1px 2px rgba(0, 0, 0, 0.12);
+        --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.2),
+          0 2px 4px rgba(0, 0, 0, 0.12);
+        --shadow-heavy: 0 10px 15px rgba(0, 0, 0, 0.2),
+          0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        background: var(--primary-bg);
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        transition: background-color 0.3s ease;
+      }
+
+      /* Utility Styles */
+      .rounded-lg {
+        border-radius: 12px;
+      }
+      .rounded-md {
+        border-radius: 8px;
+      }
+      .rounded-full {
+        border-radius: 9999px;
+      }
+
+      /* Sidebar Navigation */
+      .sidebar {
+        width: 280px;
+        background: var(--sidebar-bg);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-shadow: var(--shadow-heavy);
+        z-index: 100;
+        transition: width 0.3s ease;
+      }
+
+      .sidebar-header {
+        padding: 24px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--current-gradient);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: background 0.3s ease;
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .logo p {
+        font-size: 0.875rem;
+        opacity: 0.7;
+        margin: 0;
+      }
+
+      /* Mode Selection */
+      .mode-selector {
+        padding: 20px;
+      }
+
+      .mode-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.7;
+        margin-bottom: 12px;
+      }
+
+      .mode-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .mode-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .mode-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(4px);
+      }
+
+      .mode-btn.active {
+        background: var(--current-gradient);
+        color: white;
+        transform: translateX(4px);
+      }
+
+      .mode-icon {
+        width: 20px;
+        text-align: center;
+      }
+
+      /* Navigation Menu */
+      .nav-menu {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .nav-section {
+        margin-bottom: 32px;
+      }
+
+      .nav-section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.7;
+        margin-bottom: 12px;
+      }
+
+      .nav-items {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(4px);
+      }
+
+      .nav-item.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+      }
+
+      .nav-icon {
+        width: 16px;
+        text-align: center;
+      }
+
+      /* Main Content Area */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--primary-bg);
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+      }
+
+      /* Top Header */
+      .top-header {
+        background: var(--secondary-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--shadow-light);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .mode-indicator {
+        width: 32px;
+        height: 32px;
+        background: var(--current-gradient);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.875rem;
+        transition: background 0.3s ease;
+      }
+
+      .header-title h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .header-btn {
+        padding: 8px 12px;
+        background: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+      }
+
+      .header-btn:hover {
+        background: var(--current-light);
+        border-color: var(--current-primary);
+        color: var(--current-primary);
+        transform: translateY(-2px);
+      }
+
+      /* Chat Container */
+      .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-width: none;
+        margin: 24px 32px;
+        background: var(--secondary-bg);
+        border-radius: 16px;
+        box-shadow: var(--shadow-medium);
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+      }
+
+      /* Messages Area */
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        background: var(--secondary-bg);
+        transition: background-color 0.3s ease;
+      }
+
+      .message {
+        display: flex;
+        gap: 16px;
+        max-width: 85%;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      .message.user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+      }
+
+      .message.bot {
+        align-self: flex-start;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .user .message-avatar {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      }
+
+      .bot .message-avatar {
+        background: var(--current-gradient);
+        transition: background 0.3s ease;
+      }
+
+      .message-content {
+        background: var(--secondary-bg);
+        padding: 20px 24px;
+        border-radius: 16px;
+        position: relative;
+        line-height: 1.6;
+        word-wrap: break-word;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+      }
+
+      .message-content:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+      }
+
+      .user .message-content {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+      }
+
+      .bot .message-content {
+        background: var(--secondary-bg);
+        color: var(--text-primary);
+        border-left: 4px solid var(--current-primary);
+      }
+
+      /* Enhanced Bot Message Formatting */
+      .bot .message-content strong,
+      .bot .message-content .highlight {
+        color: var(--current-primary);
+        font-weight: 600;
+      }
+
+      .bot .message-content h3 {
+        color: var(--current-primary);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bot .message-content h4 {
+        color: var(--current-secondary);
+        font-size: 1rem;
+        font-weight: 500;
+        margin: 16px 0 8px 0;
+      }
+
+      .bot .message-content ul {
+        margin: 12px 0;
+        padding-left: 20px;
+      }
+
+      .bot .message-content li {
+        margin: 6px 0;
+        color: var(--text-secondary);
+      }
+
+      .bot .message-content li::marker {
+        color: var(--current-primary);
+      }
+
+      .bot .message-content .tip-box {
+        background: var(--current-light);
+        border-left: 4px solid var(--current-primary);
+        padding: 16px;
+        margin: 16px 0;
+        border-radius: 8px;
+        color: var(--text-primary);
+      }
+      .bot .message-content .tip-box strong {
+        color: var(--current-primary);
+      }
+
+      .bot .message-content .warning-box {
+        background: #fef3cd;
+        border-left: 4px solid #f59e0b;
+        padding: 16px;
+        margin: 16px 0;
+        border-radius: 8px;
+        color: var(--text-primary);
+      }
+      .bot .message-content .warning-box strong {
+        color: #d97706;
+      }
+
+      /* Responsive Table Styling */
+      .bot .message-content .table-container {
+        margin: 16px 0;
+        overflow-x: auto; /* Enables horizontal scroll for narrow screens */
+        border-radius: 8px;
+        box-shadow: var(--shadow-light);
+      }
+
+      .bot .message-content .table-container table {
+        width: 100%;
+        min-width: 600px; /* Prevents table from collapsing too much */
+        border-collapse: collapse;
+        font-size: 0.875rem;
+        background: var(--secondary-bg);
+      }
+
+      .bot .message-content .table-container th {
+        background: var(--current-gradient);
+        color: white;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .bot .message-content .table-container td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+      }
+
+      .bot .message-content .table-container tr:last-child td {
+        border-bottom: none;
+      }
+
+      .bot .message-content .table-container tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      .bot .message-content .table-container tr:hover {
+        background: var(--current-light);
+      }
+
+      .message-time {
+        font-size: 0.75rem;
+        opacity: 0.6;
+        margin-top: 8px;
+        text-align: right;
+        color: inherit;
+      }
+
+      /* Typing Indicator */
+      .typing-indicator {
+        display: none;
+        align-items: center;
+        gap: 16px;
+        padding: 32px;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .typing-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--current-light);
+        padding: 16px 20px;
+        border-radius: 12px;
+        border-left: 4px solid var(--current-primary);
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 4px;
+      }
+
+      .typing-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--current-primary);
+        animation: typingBounce 1.4s infinite ease-in-out;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typingBounce {
+        0%,
+        60%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.7;
+        }
+        30% {
+          transform: translateY(-8px);
+          opacity: 1;
+        }
+      }
+
+      /* Input Area */
+      .input-area {
+        padding: 24px 32px;
+        background: var(--secondary-bg);
+        border-top: 1px solid var(--border-color);
+        transition: background-color 0.3s ease;
+      }
+
+      .quick-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .quick-action {
+        background: var(--current-light);
+        color: var(--current-primary);
+        border: 1px solid transparent;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .quick-action:hover {
+        background: var(--current-primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+      }
+
+      .input-container {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        background: var(--secondary-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 8px;
+        transition: all 0.2s ease, border-color 0.3s ease;
+      }
+
+      .input-container:focus-within {
+        border-color: var(--current-primary);
+        box-shadow: 0 0 0 4px var(--current-light);
+      }
+
+      .message-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        resize: none;
+        min-height: 24px;
+        max-height: 120px;
+        font-family: inherit;
+        color: var(--text-primary);
+        outline: none;
+      }
+
+      .message-input::placeholder {
+        color: var(--text-light);
+      }
+
+      .send-btn {
+        background: var(--current-gradient);
+        color: white;
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+      }
+
+      .send-btn:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-medium);
+      }
+
+      .send-btn:disabled {
+        background: var(--text-light);
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-content {
+        background-color: var(--secondary-bg);
+        margin: 10% auto;
+        padding: 32px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 70vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-heavy);
+        animation: fadeIn 0.3s ease;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+        padding: 4px;
+      }
+
+      .close-btn:hover {
+        color: var(--text-primary);
+      }
+
+      .modal-section {
+        margin-bottom: 24px;
+      }
+
+      .modal-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-input,
+      .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+      }
+
+      .form-input:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--current-primary);
+        box-shadow: 0 0 0 3px var(--current-light);
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary {
+        background: var(--current-gradient);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-medium);
+      }
+
+      .btn-secondary {
+        background: var(--border-color);
+        color: var(--text-primary);
+        margin-right: 12px;
+      }
+
+      .btn-secondary:hover {
+        background: var(--text-light);
+      }
+
+      /* History Styles */
+      .history-item {
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .history-item:hover {
+        background: var(--current-light);
+        border-color: var(--current-primary);
+        transform: translateY(-2px);
+      }
+
+      .history-date {
+        font-size: 0.75rem;
+        color: var(--text-light);
+        margin-bottom: 4px;
+      }
+
+      .history-preview {
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        display: -webkit-box;
+        /* -webkit-line-clamp: 2; */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Error Messages */
+      .error-message {
+        background: #fef2f2;
+        color: #dc2626;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 16px 32px;
+        border-left: 4px solid #dc2626;
+      }
+
+      /* Scrollbar */
+      .chat-messages::-webkit-scrollbar,
+      .modal-content::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-messages::-webkit-scrollbar-track,
+      .modal-content::-webkit-scrollbar-track {
+        background: var(--border-color);
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb,
+      .modal-content::-webkit-scrollbar-thumb {
+        background: var(--current-primary);
+        border-radius: 3px;
+      }
+
+      /* Mobile Responsiveness */
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          height: auto;
+          order: 2;
+        }
+
+        .sidebar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .nav-menu {
+          display: none;
+        }
+
+        .main-content {
+          order: 1;
+        }
+
+        .mode-buttons {
+          flex-direction: row;
+        }
+
+        .top-header {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 16px;
+          gap: 12px;
+        }
+
+        .header-actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .chat-container {
+          margin: 16px;
+          padding: 0;
+        }
+
+        .chat-messages {
+          padding: 24px;
+        }
+
+        .input-area {
+          padding: 16px;
+        }
+
+        .modal-content {
+          margin: 5% auto;
+          padding: 20px;
+          width: 95%;
+        }
+
+        .chat-messages .message {
+          max-width: 100%;
+        }
+      }
+
+      /* Font Size Customization */
+      body.font-small {
+        font-size: 0.875rem;
+      }
+      body.font-large {
+        font-size: 1.125rem;
+      }
+
+      /* New Markdown/Code Styling */
+      .message-content pre {
+        background: #e2e8f0;
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      .message-content code {
+        font-family: monospace;
+      }
+      .dark-theme .message-content pre {
+        background: #4b5563;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div>
+            <h1>JAMY AI</h1>
+            <p>Personal Assistant</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-selector">
+        <div class="mode-title">Specialization Modes</div>
+        <div class="mode-buttons">
+          <button
+            class="mode-btn active"
+            data-mode="education"
+            onclick="switchMode('education')"
+          >
+            <i class="fas fa-graduation-cap mode-icon"></i>
+            <span>Education</span>
+          </button>
+          <button
+            class="mode-btn"
+            data-mode="health"
+            onclick="switchMode('health')"
+          >
+            <i class="fas fa-heartbeat mode-icon"></i>
+            <span>Health</span>
+          </button>
+          <button
+            class="mode-btn"
+            data-mode="relationship"
+            onclick="switchMode('relationship')"
+          >
+            <i class="fas fa-heart mode-icon"></i>
+            <span>Relationships</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="nav-menu">
+        <div class="nav-section">
+          <div class="nav-section-title">Quick Actions</div>
+          <div class="nav-items">
+            <button
+              class="nav-item"
+              onclick="sendQuickMessage(getCurrentModeWelcome())"
+            >
+              <i class="fas fa-play nav-icon"></i>
+              Get Started
+            </button>
+            <button class="nav-item" onclick="clearChat()">
+              <i class="fas fa-plus nav-icon"></i>
+              New Chat
+            </button>
+            <button class="nav-item" onclick="showHistoryModal()">
+              <i class="fas fa-history nav-icon"></i>
+              Chat History
+            </button>
+            <button class="nav-item" onclick="showExportModal()">
+              <i class="fas fa-download nav-icon"></i>
+              Export Chat
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <div class="nav-items">
+            <button class="nav-item" onclick="showCustomizationModal()">
+              <i class="fas fa-palette nav-icon"></i>
+              Customize
+            </button>
+            <button class="nav-item" onclick="showAboutModal()">
+              <i class="fas fa-info-circle nav-icon"></i>
+              About
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="top-header">
+        <div class="header-title">
+          <div class="mode-indicator" id="modeIndicator">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <div>
+            <h2 id="currentModeTitle">Education Assistant</h2>
+            <p
+              id="currentModeDesc"
+              style="
+                margin: 0;
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+              "
+            >
+              Study strategies, learning techniques, and academic support
+            </p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" onclick="showHistoryModal()">
+            <i class="fas fa-history"></i>
+            History
+          </button>
+          <button class="header-btn" onclick="showExportModal()">
+            <i class="fas fa-share"></i>
+            Export
+          </button>
+          <button class="header-btn" onclick="showCustomizationModal()">
+            <i class="fas fa-cog"></i>
+            Settings
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot">
+            <div class="message-avatar">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="message-content">
+              <h3>
+                <i class="fas fa-graduation-cap"></i> Welcome to Education Mode!
+              </h3>
+              <p>
+                I'm here to help you with your learning journey. I can assist
+                with:
+              </p>
+              <ul>
+                <li>
+                  <span class="highlight">Study strategies</span> and time
+                  management
+                </li>
+                <li>
+                  <span class="highlight">Learning techniques</span> like active
+                  recall and spaced repetition
+                </li>
+                <li>
+                  <span class="highlight">Subject-specific guidance</span> and
+                  explanations
+                </li>
+                <li>
+                  <span class="highlight">Academic planning</span> and goal
+                  setting
+                </li>
+              </ul>
+              <div class="tip-box">
+                <strong>💡 Pro Tip:</strong> Start by telling me what subject
+                you're studying or what specific learning challenge you're
+                facing! You can also ask me to create tables for organized
+                information.
+              </div>
+              <div class="message-time" id="welcomeTime"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <div class="message-avatar">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <div class="typing-content">
+            <span id="typingText">JAMY AI is thinking...</span>
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area">
+          <div class="quick-actions" id="quickActions">
+            <button
+              class="quick-action"
+              onclick="sendQuickMessage('What are the best study techniques for memorization?')"
+            >
+              🧠 Study Techniques
+            </button>
+            <button
+              class="quick-action"
+              onclick="sendQuickMessage('How can I manage my time better as a student?')"
+            >
+              ⏰ Time Management
+            </button>
+            <button
+              class="quick-action"
+              onclick="sendQuickMessage('Create a study schedule table for me')"
+            >
+              📊 Study Table
+            </button>
+            <button
+              class="quick-action"
+              onclick="sendQuickMessage('How can I improve my focus while studying?')"
+            >
+              🎯 Focus Tips
+            </button>
+          </div>
+
+          <div class="input-container">
+            <textarea
+              id="messageInput"
+              class="message-input"
+              placeholder="Ask me about study strategies, learning techniques, or any academic topic. You can also ask for tables!"
+              rows="1"
+              maxlength="1000"
+            ></textarea>
+            <button
+              id="sendBtn"
+              class="send-btn"
+              onclick="sendMessage()"
+              title="Send message"
+            >
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Chat History</h2>
+          <button class="close-btn" onclick="closeModal('historyModal')">
+            &times;
+          </button>
+        </div>
+        <div id="historyList">
+          <!-- History items will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Export Chat</h2>
+          <button class="close-btn" onclick="closeModal('exportModal')">
+            &times;
+          </button>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Export Format</div>
+          <div class="form-group">
+            <label class="form-label">Choose format:</label>
+            <select id="exportFormat" class="form-select">
+              <option value="txt">Text (.txt)</option>
+              <option value="json">JSON (.json)</option>
+              <option value="html">HTML (.html)</option>
+              <option value="pdf">PDF (.pdf)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Include:</label>
+            <div>
+              <label
+                ><input type="checkbox" id="includeTimestamps" checked />
+                Timestamps</label
+              ><br />
+              <label
+                ><input type="checkbox" id="includeMode" checked /> Mode
+                Information</label
+              ><br />
+              <label
+                ><input type="checkbox" id="includeMetadata" checked />
+                Metadata</label
+              >
+            </div>
+          </div>
+          <div style="text-align: right; margin-top: 24px">
+            <button
+              class="btn btn-secondary"
+              onclick="closeModal('exportModal')"
+            >
+              Cancel
+            </button>
+            <button class="btn btn-primary" onclick="exportChat()">
+              Export
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customization Modal -->
+    <div id="customizationModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Customize Interface</h2>
+          <button class="close-btn" onclick="closeModal('customizationModal')">
+            &times;
+          </button>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-section-title">Theme Settings</div>
+          <div class="form-group">
+            <label class="form-label">Theme:</label>
+            <select
+              id="themeSelect"
+              class="form-select"
+              onchange="applyTheme()"
+            >
+              <option value="light">Light Theme</option>
+              <option value="dark">Dark Theme</option>
+              <option value="auto">Auto (System)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Font Size:</label>
+            <select
+              id="fontSizeSelect"
+              class="form-select"
+              onchange="applyFontSize()"
+            >
+              <option value="small">Small</option>
+              <option value="normal" selected>Normal</option>
+              <option value="large">Large</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <div class="modal-section-title">Chat Settings</div>
+          <div class="form-group">
+            <label class="form-label">Response Style:</label>
+            <select id="responseStyle" class="form-select">
+              <option value="detailed">Detailed</option>
+              <option value="concise">Concise</option>
+              <option value="bullet">Bullet Points</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Auto-save Chat:</label>
+            <label
+              ><input type="checkbox" id="autoSave" checked /> Enable
+              auto-save</label
+            >
+          </div>
+        </div>
+
+        <div style="text-align: right; margin-top: 24px">
+          <button
+            class="btn btn-secondary"
+            onclick="closeModal('customizationModal')"
+          >
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="saveCustomization()">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">About JAMY AI</h2>
+          <button class="close-btn" onclick="closeModal('aboutModal')">
+            &times;
+          </button>
+        </div>
+        <div class="modal-section">
+          <p>
+            <strong>JAMY AI</strong> is your personal assistant specializing in
+            three key areas:
+          </p>
+          <ul style="margin: 16px 0; padding-left: 20px">
+            <li>
+              <strong>Education:</strong> Study techniques, learning strategies,
+              academic support
+            </li>
+            <li>
+              <strong>Health:</strong> Wellness tips, nutrition guidance,
+              fitness advice
+            </li>
+            <li>
+              <strong>Relationships:</strong> Communication skills, social
+              advice, interpersonal support
+            </li>
+          </ul>
+          <p><strong>Features:</strong></p>
+          <ul style="margin: 16px 0; padding-left: 20px">
+            <li>Smart tabular formatting for organized information</li>
+            <li>Chat history and export functionality</li>
+            <li>Customizable interface and themes</li>
+            <li>Mode-specific assistance</li>
+            <li>Responsive design for all devices</li>
+          </ul>
+          <p
+            style="
+              margin-top: 16px;
+              padding: 12px;
+              background: var(--current-light);
+              border-radius: 6px;
+            "
+          >
+            <strong>Version:</strong> 2.0<br />
+            <strong>Last Updated:</strong> September 2025
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mode configurations with enhanced table support
+      const modes = {
+        education: {
+          title: "Education Assistant",
+          description:
+            "Study strategies, learning techniques, and academic support",
+          icon: "fas fa-graduation-cap",
+          primary: "#3b82f6",
+          secondary: "#60a5fa",
+          light: "#dbeafe",
+          gradient: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+          quickActions: [
+            "🧠 Study Techniques",
+            "⏰ Time Management",
+            "📊 Study Table",
+            "🎯 Focus Tips",
+          ],
+          welcomeMessage: `
+                    <h3><i class="fas fa-graduation-cap"></i> Welcome to Education Mode!</h3>
+                    <p>I'm here to help you with your learning journey. I can assist with:</p>
+                    <ul>
+                      <li><span class="highlight">Study strategies</span> and time management</li>
+                      <li><span class="highlight">Learning techniques</span> like active recall and spaced repetition</li>
+                      <li><span class="highlight">Subject-specific guidance</span> and explanations</li>
+                      <li><span class="highlight">Academic planning</span> and goal setting</li>
+                    </ul>
+                    <div class="tip-box">
+                      <strong>💡 Pro Tip:</strong> Start by telling me what subject you're studying or what specific learning challenge you're facing! You can also ask me to create tables for organized information.
+                    </div>
+                `,
+          placeholder:
+            "Ask me about study strategies, learning techniques, or any academic topic. You can also ask for tables!",
+        },
+        health: {
+          title: "Health Assistant",
+          description:
+            "Wellness tips, nutrition guidance, and healthy lifestyle support",
+          icon: "fas fa-heartbeat",
+          primary: "#10b981",
+          secondary: "#34d399",
+          light: "#d1fae5",
+          gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+          quickActions: [
+            "🥗 Nutrition Tips",
+            "💪 Exercise Plans",
+            "📊 Health Table",
+            "🧘 Mental Wellness",
+          ],
+          welcomeMessage: `
+                    <h3><i class="fas fa-heartbeat"></i> Welcome to Health Mode!</h3>
+                    <p>I'm here to support your wellness journey. I can help with:</p>
+                    <ul>
+                      <li><span class="highlight">Nutrition guidance</span> and healthy eating habits</li>
+                      <li><span class="highlight">Exercise recommendations</span> and fitness planning</li>
+                      <li><span class="highlight">Mental health</span> and stress management</li>
+                      <li><span class="highlight">Sleep optimization</span> and healthy routines</li>
+                    </ul>
+                    <div class="warning-box">
+                      <strong>⚠️ Important:</strong> Always consult healthcare professionals for medical concerns. I provide general wellness information only.
+                    </div>
+                `,
+          placeholder:
+            "Ask me about nutrition, exercise, mental health, or wellness topics. Request tables for organized health data!",
+        },
+        relationship: {
+          title: "Relationship Assistant",
+          description:
+            "Communication skills, relationship advice, and interpersonal support",
+          icon: "fas fa-heart",
+          primary: "#f59e0b",
+          secondary: "#fbbf24",
+          light: "#fef3c7",
+          gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+          quickActions: [
+            "💬 Communication Skills",
+            "❤️ Relationship Tips",
+            "📊 Social Table",
+            "🤝 Conflict Resolution",
+          ],
+          welcomeMessage: `
+                    <h3><i class="fas fa-heart"></i> Welcome to Relationship Mode!</h3>
+                    <p>I'm here to help you build better connections. I can assist with:</p>
+                    <ul>
+                      <li><span class="highlight">Communication skills</span> and active listening</li>
+                      <li><span class="highlight">Relationship dynamics</span> and building trust</li>
+                      <li><span class="highlight">Social skills</span> and making connections</li>
+                      <li><span class="highlight">Conflict resolution</span> and problem-solving</li>
+                    </ul>
+                    <div class="tip-box">
+                      <strong>💝 Remember:</strong> Healthy relationships are built on mutual respect, trust, and open communication.
+                    </div>
+                `,
+          placeholder:
+            "Ask me about relationships, communication, or social situations. Request tables for organized advice!",
+        },
+      };
+
+      // Global variables
+      let currentMode = "education";
+      let conversationHistory = [];
+      let currentMessageId = 0;
+      let chatHistory = JSON.parse(
+        localStorage.getItem("jamyai_history") || "[]"
+      );
+      let userSettings = JSON.parse(
+        localStorage.getItem("jamyai_settings") || "{}"
+      );
+
+      // DOM elements
+      const chatMessages = document.getElementById("chatMessages");
+      const messageInput = document.getElementById("messageInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const typingIndicator = document.getElementById("typingIndicator");
+
+      // API Configuration
+      const API_CONFIG = {
+        baseURL: "/api",
+        fallbackEnabled: true,
+        maxRetries: 3,
+      };
+
+      // Initialize app
+      function initializeApp() {
+        updateWelcomeTime();
+        loadUserSettings();
+        switchMode("education");
+        messageInput.focus();
+      }
+
+      // User Settings Management
+      function loadUserSettings() {
+        if (userSettings.theme) {
+          document.getElementById("themeSelect").value = userSettings.theme;
+          applyTheme();
+        }
+        if (userSettings.fontSize) {
+          document.getElementById("fontSizeSelect").value =
+            userSettings.fontSize;
+          applyFontSize();
+        }
+        if (userSettings.responseStyle) {
+          document.getElementById("responseStyle").value =
+            userSettings.responseStyle;
+        }
+        if (userSettings.autoSave !== undefined) {
+          document.getElementById("autoSave").checked = userSettings.autoSave;
+        }
+      }
+
+      function saveUserSettings() {
+        userSettings = {
+          theme: document.getElementById("themeSelect").value,
+          fontSize: document.getElementById("fontSizeSelect").value,
+          responseStyle: document.getElementById("responseStyle").value,
+          autoSave: document.getElementById("autoSave").checked,
+        };
+        localStorage.setItem("jamyai_settings", JSON.stringify(userSettings));
+      }
+
+      function applyTheme() {
+        const theme = document.getElementById("themeSelect").value;
+        document.body.classList.remove("dark-theme", "light-theme");
+
+        if (theme === "dark") {
+          document.body.classList.add("dark-theme");
+          document.documentElement.style.setProperty("--primary-bg", "#1f2937");
+          document.documentElement.style.setProperty(
+            "--secondary-bg",
+            "#2d3748"
+          );
+          document.documentElement.style.setProperty("--sidebar-bg", "#111827");
+          document.documentElement.style.setProperty(
+            "--text-primary",
+            "#f9fafb"
+          );
+          document.documentElement.style.setProperty(
+            "--text-secondary",
+            "#d1d5db"
+          );
+          document.documentElement.style.setProperty("--text-light", "#9ca3af");
+          document.documentElement.style.setProperty(
+            "--border-color",
+            "#4b5563"
+          );
+        } else if (theme === "light") {
+          document.body.classList.add("light-theme");
+          document.documentElement.style.setProperty("--primary-bg", "#f8fafc");
+          document.documentElement.style.setProperty(
+            "--secondary-bg",
+            "#ffffff"
+          );
+          document.documentElement.style.setProperty("--sidebar-bg", "#1e293b");
+          document.documentElement.style.setProperty(
+            "--text-primary",
+            "#1e293b"
+          );
+          document.documentElement.style.setProperty(
+            "--text-secondary",
+            "#64748b"
+          );
+          document.documentElement.style.setProperty("--text-light", "#94a3b8");
+          document.documentElement.style.setProperty(
+            "--border-color",
+            "#e2e8f0"
+          );
+        } else {
+          // Auto theme based on system preference
+          if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          ) {
+            document.body.classList.add("dark-theme");
+          }
+        }
+      }
+
+      function applyFontSize() {
+        const fontSize = document.getElementById("fontSizeSelect").value;
+        document.body.classList.remove("font-small", "font-large");
+
+        if (fontSize === "small") {
+          document.body.classList.add("font-small");
+        } else if (fontSize === "large") {
+          document.body.classList.add("font-large");
+        }
+      }
+
+      // Switch between modes
+      function switchMode(mode) {
+        currentMode = mode;
+        const modeConfig = modes[mode];
+
+        // Update CSS variables
+        document.documentElement.style.setProperty(
+          "--current-primary",
+          modeConfig.primary
+        );
+        document.documentElement.style.setProperty(
+          "--current-secondary",
+          modeConfig.secondary
+        );
+        document.documentElement.style.setProperty(
+          "--current-light",
+          modeConfig.light
+        );
+        document.documentElement.style.setProperty(
+          "--current-gradient",
+          modeConfig.gradient
+        );
+
+        // Update UI elements
+        document.getElementById(
+          "modeIndicator"
+        ).innerHTML = `<i class="${modeConfig.icon}"></i>`;
+        document.getElementById("currentModeTitle").textContent =
+          modeConfig.title;
+        document.getElementById("currentModeDesc").textContent =
+          modeConfig.description;
+        messageInput.placeholder = modeConfig.placeholder;
+
+        // Update active mode button
+        document.querySelectorAll(".mode-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        document.querySelector(`[data-mode="${mode}"]`).classList.add("active");
+
+        // Update quick actions
+        updateQuickActions(mode);
+
+        // Clear and show welcome message
+        clearChat();
+        showWelcomeMessage(mode);
+
+        // Update conversation history with new system prompt
+        conversationHistory = [
+          {
+            role: "system",
+            content: getSystemPrompt(mode),
+          },
+        ];
+      }
+
+      // Get system prompt for current mode
+      function getSystemPrompt(mode) {
+        const basePrompt =
+          "You are JAMY AI, a helpful and knowledgeable assistant.";
+        const tableInstruction =
+          " When requested or when tabular format would be helpful, format your response using HTML tables with proper styling. Use tables for comparisons, schedules, lists, data organization, or any structured information.";
+
+        const modePrompts = {
+          education: `${basePrompt} You specialize in education, learning strategies, study techniques, and academic support. Format your responses with clear headings, bullet points, and highlight key terms. Use educational emojis and provide structured, actionable advice.${tableInstruction}`,
+          health: `${basePrompt} You specialize in health, wellness, nutrition, and fitness guidance. Always remind users to consult healthcare professionals for medical issues. Format responses with health tips, warnings when needed, and use health-related emojis. Provide evidence-based information.${tableInstruction}`,
+          relationship: `${basePrompt} You specialize in relationships, communication, and interpersonal skills. Provide empathetic, balanced advice with practical tips. Format responses with relationship insights, communication strategies, and use appropriate emojis.${tableInstruction}`,
+        };
+        return modePrompts[mode];
+      }
+
+      // Update quick actions for current mode
+      function updateQuickActions(mode) {
+        const quickActions = document.getElementById("quickActions");
+        const modeConfig = modes[mode];
+        const actionQueries = {
+          education: [
+            "What are the best study techniques for memorization?",
+            "How can I manage my time better as a student?",
+            "Create a study schedule table for me",
+            "How can I improve my focus while studying?",
+          ],
+          health: [
+            "What are some healthy eating habits I should follow?",
+            "Can you suggest a beginner-friendly exercise routine?",
+            "Create a weekly meal plan table for healthy eating",
+            "What are effective stress management techniques?",
+          ],
+          relationship: [
+            "How can I improve my communication skills?",
+            "What makes a healthy relationship?",
+            "Create a conflict resolution guide in table format",
+            "Tips for making new friends and social connections",
+          ],
+        };
+
+        quickActions.innerHTML = modeConfig.quickActions
+          .map(
+            (action, index) =>
+              `<button class="quick-action" onclick="sendQuickMessage('${actionQueries[mode][index]}')">${action}</button>`
+          )
+          .join("");
+      }
+
+      // Show welcome message for mode
+      function showWelcomeMessage(mode) {
+        const modeConfig = modes[mode];
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message bot";
+        messageDiv.innerHTML = `
+          <div class="message-avatar">
+            <i class="${modeConfig.icon}"></i>
+          </div>
+          <div class="message-content">
+            ${modeConfig.welcomeMessage}
+            <div class="message-time">${getCurrentTime()}</div>
+          </div>
+        `;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      // New helper function to convert Markdown table to HTML
+      function convertMarkdownTableToHtml(markdown) {
+        const lines = markdown
+          .trim()
+          .split("\n")
+          .map((line) => line.trim());
+        if (lines.length < 2) return ""; // Not a valid table
+
+        // Check for the separator line which starts with |---|
+        const separatorIndex = lines.findIndex((line) =>
+          /^\s*\|?[-:]/.test(line)
+        );
+        if (separatorIndex === -1) return "";
+
+        const headerLine = lines[0];
+        const dataLines = lines.slice(separatorIndex + 1);
+
+        // Helper to parse a row
+        const parseRow = (line) => {
+          const cells = line
+            .split("|")
+            .map((cell) => cell.trim())
+            .filter((cell) => cell !== "");
+          return cells;
+        };
+
+        const headers = parseRow(headerLine);
+        const htmlTableRows = dataLines
+          .map((line) => {
+            const cells = parseRow(line);
+            if (cells.length !== headers.length) return ""; // Skip malformed rows
+            return `<tr>${cells
+              .map((cell) => `<td>${cell}</td>`)
+              .join("")}</tr>`;
+          })
+          .join("");
+
+        const htmlHeaderRow = `<tr>${headers
+          .map((header) => `<th>${header}</th>`)
+          .join("")}</tr>`;
+
+        return `
+          <div class="table-container">
+            <table>
+              <thead>
+                ${htmlHeaderRow}
+              </thead>
+              <tbody>
+                ${htmlTableRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      // New and improved function to format bot responses
+      function formatBotMessage(content) {
+        // First, check if the content contains a Markdown table
+        const markdownTableMatch = content.match(/^\|.*?\|\s*\n\s*\|[-:|]+\|/m);
+        if (markdownTableMatch) {
+          const tableContent =
+            markdownTableMatch[0] +
+            content.substring(
+              markdownTableMatch.index + markdownTableMatch[0].length
+            );
+          const markdownTableHtml = convertMarkdownTableToHtml(tableContent);
+          const preTableText = content
+            .substring(0, markdownTableMatch.index)
+            .trim();
+
+          // Combine the pre-table text with the new HTML table
+          let result = "";
+          if (preTableText) {
+            result += `<p>${preTableText}</p>`;
+          }
+          result += markdownTableHtml;
+          return result;
+        }
+
+        // If no Markdown table, check for HTML table
+        if (content.includes("<table")) {
+          return `<div class="table-container">${content}</div>`;
+        } else {
+          // If no table, apply rich text formatting for markdown-like syntax.
+          let formatted = content
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/`([^`]+)`/g, "<code>$1</code>") // Handle inline code
+            .replace(/```(.*?)\n([\s\S]+?)```/g, "<pre><code>$2</code></pre>") // Handle code blocks
+            .replace(
+              /### (.*?)\n/g,
+              '<h3><i class="fas fa-lightbulb"></i> $1</h3>'
+            )
+            .replace(/## (.*?)\n/g, "<h4>$1</h4>")
+            .replace(/\n- /g, "\n• ");
+
+          // Split into paragraphs and handle bullet points
+          const paragraphs = formatted.split("\n\n").filter((p) => p.trim());
+          return paragraphs
+            .map((p) => {
+              if (p.startsWith("•")) {
+                const items = p.split("\n").filter((item) => item.trim());
+                const listItems = items
+                  .map((item) =>
+                    item.startsWith("•")
+                      ? `<li>${item.substring(1).trim()}</li>`
+                      : item
+                  )
+                  .join("");
+                return `<ul>${listItems}</ul>`;
+              }
+              return `<p>${p.trim()}</p>`;
+            })
+            .join("");
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Generate table responses based on mode and request
+      function generateTableResponse(content) {
+        const msg = content.toLowerCase();
+
+        if (currentMode === "education") {
+          if (msg.includes("schedule") || msg.includes("timetable")) {
+            return `
+              <h3><i class="fas fa-calendar"></i> Weekly Study Schedule</h3>
+              <p>Here's a sample study schedule template you can customize:</p>
+              <table>
+                  <tr><th>Time</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Weekend</th></tr>
+                  <tr><td>9:00-11:00 AM</td><td>Math</td><td>Science</td><td>Math</td><td>Science</td><td>Review</td><td>Free Time</td></tr>
+                  <tr><td>11:00-1:00 PM</td><td>English</td><td>History</td><td>English</td><td>History</td><td>Projects</td><td>Hobbies</td></tr>
+                  <tr><td>2:00-4:00 PM</td><td>Science</td><td>Math</td><td>Science</td><td>Math</td><td>Practice</td><td>Exercise</td></tr>
+                  <tr><td>4:00-6:00 PM</td><td>History</td><td>English</td><td>History</td><td>English</td><td>Review</td><td>Family Time</td></tr>
+              </table>
+              <div class="tip-box">
+                  <strong>💡 Tip:</strong> Adjust the subjects and timing according to your needs and energy levels!
+              </div>
+          `;
+          } else if (msg.includes("technique") || msg.includes("method")) {
+            return `
+              <h3><i class="fas fa-brain"></i> Study Techniques Comparison</h3>
+              <table>
+                  <tr><th>Technique</th><th>Best For</th><th>Time Required</th><th>Effectiveness</th><th>Difficulty</th></tr>
+                  <tr><td>Active Recall</td><td>Memorization</td><td>Medium</td><td>High</td><td>Medium</td></tr>
+                  <tr><td>Spaced Repetition</td><td>Long-term retention</td><td>Long</td><td>Very High</td><td>Low</td></tr>
+                  <tr><td>Pomodoro</td><td>Focus & productivity</td><td>Short</td><td>High</td><td>Low</td></tr>
+                  <tr><td>Mind Mapping</td><td>Visual learners</td><td>Medium</td><td>Medium</td><td>Medium</td></tr>
+                  <tr><td>Feynman Technique</td><td>Understanding concepts</td><td>Long</td><td>Very High</td><td>High</td></tr>
+              </table>
+          `;
+          }
+        } else if (currentMode === "health") {
+          if (
+            msg.includes("meal") ||
+            msg.includes("nutrition") ||
+            msg.includes("diet")
+          ) {
+            return `
+              <h3><i class="fas fa-utensils"></i> Weekly Healthy Meal Plan</h3>
+              <p>Here's a balanced meal plan template:</p>
+              <table>
+                  <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snack</th></tr>
+                  <tr><td>Monday</td><td>Oatmeal with berries</td><td>Grilled chicken salad</td><td>Salmon with vegetables</td><td>Greek yogurt</td></tr>
+                  <tr><td>Tuesday</td><td>Greek yogurt parfait</td><td>Quinoa bowl</td><td>Lean beef stir-fry</td><td>Mixed nuts</td></tr>
+                  <tr><td>Wednesday</td><td>Smoothie bowl</td><td>Turkey sandwich</td><td>Baked cod with rice</td><td>Apple slices</td></tr>
+                  <tr><td>Thursday</td><td>Eggs with toast</td><td>Lentil soup</td><td>Chicken curry</td><td>Hummus with veggies</td></tr>
+                  <tr><td>Friday</td><td>Chia pudding</td><td>Tuna salad wrap</td><td>Vegetarian pasta</td><td>Berries</td></tr>
+              </table>
+              <div class="warning-box">
+                  <strong>⚠️ Note:</strong> Adjust portions and ingredients based on your dietary requirements and consult a nutritionist for personalized advice.
+              </div>
+          `;
+          } else if (
+            msg.includes("exercise") ||
+            msg.includes("workout") ||
+            msg.includes("fitness")
+          ) {
+            return `
+              <h3><i class="fas fa-dumbbell"></i> Weekly Exercise Schedule</h3>
+              <table>
+                  <tr><th>Day</th><th>Type</th><th>Duration</th><th>Intensity</th><th>Focus Area</th></tr>
+                  <tr><td>Monday</td><td>Cardio</td><td>30 mins</td><td>Moderate</td><td>Heart health</td></tr>
+                  <tr><td>Tuesday</td><td>Strength</td><td>45 mins</td><td>High</td><td>Upper body</td></tr>
+                  <tr><td>Wednesday</td><td>Yoga</td><td>30 mins</td><td>Low</td><td>Flexibility</td></tr>
+                  <tr><td>Thursday</td><td>Cardio</td><td>30 mins</td><td>Moderate</td><td>Endurance</td></tr>
+                  <tr><td>Friday</td><td>Strength</td><td>45 mins</td><td>High</td><td>Lower body</td></tr>
+                  <tr><td>Saturday</td><td>Sports/Fun</td><td>60 mins</td><td>Variable</td><td>Overall fitness</td></tr>
+                  <tr><td>Sunday</td><td>Rest/Light walk</td><td>20 mins</td><td>Low</td><td>Recovery</td></tr>
+              </table>
+          `;
+          }
+        } else if (currentMode === "relationship") {
+          if (
+            msg.includes("conflict") ||
+            msg.includes("resolution") ||
+            msg.includes("argument")
+          ) {
+            return `
+              <h3><i class="fas fa-handshake"></i> Conflict Resolution Guide</h3>
+              <table>
+                  <tr><th>Step</th><th>Action</th><th>Purpose</th><th>Example</th></tr>
+                  <tr><td>1</td><td>Stay Calm</td><td>Prevent escalation</td><td>"Let me take a deep breath first"</td></tr>
+                  <tr><td>2</td><td>Listen Actively</td><td>Understand their perspective</td><td>"Help me understand your point"</td></tr>
+                  <tr><td>3</td><td>Acknowledge Feelings</td><td>Validate emotions</td><td>"I can see you're frustrated"</td></tr>
+                  <tr><td>4</td><td>Find Common Ground</td><td>Build connection</td><td>"We both want what's best"</td></tr>
+                  <tr><td>5</td><td>Brainstorm Solutions</td><td>Collaborative problem-solving</td><td>"What if we tried..."</td></tr>
+                  <tr><td>6</td><td>Agree on Next Steps</td><td>Clear action plan</td><td>"So we'll do X by Y date"</td></tr>
+              </table>
+          `;
+          } else if (msg.includes("communication") || msg.includes("skill")) {
+            return `
+              <h3><i class="fas fa-comments"></i> Communication Skills Framework</h3>
+              <table>
+                  <tr><th>Skill</th><th>Description</th><th>When to Use</th><th>Example Phrase</th></tr>
+                  <tr><td>Active Listening</td><td>Full attention to speaker</td><td>During important conversations</td><td>"Tell me more about that"</td></tr>
+                  <tr><td>Empathy</td><td>Understanding others' feelings</td><td>When someone is upset</td><td>"That sounds really difficult"</td></tr>
+                  <tr><td>Assertiveness</td><td>Clear, respectful communication</td><td>Setting boundaries</td><td>"I need to say no to that"</td></tr>
+                  <tr><td>Non-verbal</td><td>Body language awareness</td><td>All interactions</td><td>Eye contact, open posture</td></tr>
+                  <tr><td>Clarification</td><td>Ensuring understanding</td><td>When confused</td><td>"Just to clarify, you mean..."</td></tr>
+              </table>
+          `;
+          }
+        }
+
+        // Default response if no specific table matches
+        return content;
+      }
+
+      // History Management
+      function saveToHistory() {
+        if (conversationHistory.length > 1) {
+          // More than just system prompt
+          const historyEntry = {
+            id: Date.now(),
+            mode: currentMode,
+            date: new Date().toISOString(),
+            messages: [...conversationHistory],
+            preview: getConversationPreview(),
+          };
+
+          chatHistory.unshift(historyEntry);
+          if (chatHistory.length > 50) {
+            // Keep only last 50 conversations
+            chatHistory = chatHistory.slice(0, 50);
+          }
+
+          localStorage.setItem("jamyai_history", JSON.stringify(chatHistory));
+        }
+      }
+
+      function getConversationPreview() {
+        const userMessages = conversationHistory.filter(
+          (msg) => msg.role === "user"
+        );
+        return userMessages.length > 0
+          ? userMessages[0].content.substring(0, 100) + "..."
+          : "New conversation";
+      }
+
+      function showHistoryModal() {
+        const historyList = document.getElementById("historyList");
+
+        if (chatHistory.length === 0) {
+          historyList.innerHTML =
+            '<p style="text-align: center; color: var(--text-light); padding: 40px;">No chat history available</p>';
+        } else {
+          historyList.innerHTML = chatHistory
+            .map(
+              (entry) => `
+                    <div class="history-item" onclick="loadHistoryEntry('${
+                      entry.id
+                    }')">
+                        <div class="history-date">${new Date(
+                          entry.date
+                        ).toLocaleString()} - ${modes[entry.mode].title}</div>
+                        <div class="history-preview">${entry.preview}</div>
+                    </div>
+                `
+            )
+            .join("");
+        }
+
+        document.getElementById("historyModal").style.display = "block";
+      }
+
+      function loadHistoryEntry(entryId) {
+        const entry = chatHistory.find((h) => h.id == entryId);
+        if (entry) {
+          switchMode(entry.mode);
+          conversationHistory = [...entry.messages];
+
+          // Clear and reload messages
+          clearChat();
+          entry.messages.forEach((msg, index) => {
+            if (msg.role !== "system") {
+              addMessage(msg.content, msg.role === "user", index);
+            }
+          });
+
+          closeModal("historyModal");
+        }
+      }
+
+      // Export functionality
+      function showExportModal() {
+        document.getElementById("exportModal").style.display = "block";
+      }
+
+      function exportChat() {
+        const format = document.getElementById("exportFormat").value;
+        const includeTimestamps =
+          document.getElementById("includeTimestamps").checked;
+        const includeMode = document.getElementById("includeMode").checked;
+        const includeMetadata =
+          document.getElementById("includeMetadata").checked;
+
+        let content = "";
+        let filename = `jamy-ai-chat-${new Date().toISOString().split("T")[0]}`;
+
+        if (format === "txt") {
+          content = exportToText(
+            includeTimestamps,
+            includeMode,
+            includeMetadata
+          );
+          filename += ".txt";
+        } else if (format === "json") {
+          content = exportToJSON(
+            includeTimestamps,
+            includeMode,
+            includeMetadata
+          );
+          filename += ".json";
+        } else if (format === "html") {
+          content = exportToHTML(
+            includeTimestamps,
+            includeMode,
+            includeMetadata
+          );
+          filename += ".html";
+        } else if (format === "pdf") {
+          exportToPDF(includeTimestamps, includeMode, includeMetadata);
+          closeModal("exportModal");
+          return;
+        }
+
+        downloadFile(content, filename);
+        closeModal("exportModal");
+      }
+
+      function exportToText(timestamps, mode, metadata) {
+        let text = "";
+
+        if (metadata) {
+          text += `JAMY AI Chat Export\n`;
+          text += `Date: ${new Date().toLocaleString()}\n`;
+          text += `Mode: ${modes[currentMode].title}\n`;
+          text += `Messages: ${
+            conversationHistory.filter((m) => m.role !== "system").length
+          }\n`;
+          text += `${"=".repeat(50)}\n\n`;
+        }
+
+        conversationHistory.forEach((msg) => {
+          if (msg.role !== "system") {
+            const speaker = msg.role === "user" ? "You" : "JAMY AI";
+            text += `${speaker}:\n${msg.content}\n\n`;
+          }
+        });
+
+        return text;
+      }
+
+      function exportToJSON(timestamps, mode, metadata) {
+        const exportData = {
+          exported_at: new Date().toISOString(),
+          mode: currentMode,
+          mode_title: modes[currentMode].title,
+          conversation: conversationHistory.filter((m) => m.role !== "system"),
+        };
+
+        if (metadata) {
+          exportData.metadata = {
+            message_count: exportData.conversation.length,
+            export_settings: {
+              include_timestamps: timestamps,
+              include_mode: mode,
+              include_metadata: metadata,
+            },
+          };
+        }
+
+        return JSON.stringify(exportData, null, 2);
+      }
+
+      function exportToHTML(timestamps, mode, metadata) {
+        let html = `<!DOCTYPE html>
+<html>
+<head>
+    <title>JAMY AI Chat Export</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 40px; background: #f8fafc; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .message { margin-bottom: 20px; padding: 15px; border-radius: 8px; }
+        .user { background: #e0e7ff; margin-left: 20%; }
+        .assistant { background: white; margin-right: 20%; border-left: 4px solid #3b82f6; }
+        .mode-badge { display: inline-block; background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 JAMY AI Chat Export</h1>
+        <p>Exported on ${new Date().toLocaleString()}</p>
+        ${
+          mode
+            ? `<span class="mode-badge">${modes[currentMode].title}</span>`
+            : ""
+        }
+    </div>`;
+
+        conversationHistory.forEach((msg) => {
+          if (msg.role !== "system") {
+            const className = msg.role === "user" ? "user" : "assistant";
+            const speaker = msg.role === "user" ? "You" : "JAMY AI";
+            html += `<div class="message ${className}">
+                        <strong>${speaker}:</strong><br>
+                        ${msg.content.replace(/\n/g, "<br>")}
+                    </div>`;
+          }
+        });
+
+        html += `</body></html>`;
+        return html;
+      }
+
+      function exportToPDF(timestamps, mode, metadata) {
+        // For PDF export, we'll use browser's print function with custom styles
+        const printWindow = window.open("", "_blank");
+        const content = exportToHTML(timestamps, mode, metadata);
+
+        printWindow.document.write(content);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }
+
+      function downloadFile(content, filename) {
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+
+      // Modal management
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+      }
+
+      function showCustomizationModal() {
+        document.getElementById("customizationModal").style.display = "block";
+      }
+
+      function showAboutModal() {
+        document.getElementById("aboutModal").style.display = "block";
+      }
+
+      function saveCustomization() {
+        saveUserSettings();
+        closeModal("customizationModal");
+
+        // Show success message
+        const successMsg = document.createElement("div");
+        successMsg.className = "error-message";
+        successMsg.style.background = "#d1fae5";
+        successMsg.style.color = "#065f46";
+        successMsg.style.borderLeftColor = "#10b981";
+        successMsg.innerHTML =
+          '<p><i class="fas fa-check-circle"></i> Settings saved successfully!</p>';
+        document.querySelector(".main-content").appendChild(successMsg);
+
+        setTimeout(() => successMsg.remove(), 3000);
+      }
+
+      // Rest of the existing functions...
+      function getCurrentTime() {
+        return new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function updateWelcomeTime() {
+        const welcomeTimeEl = document.getElementById("welcomeTime");
+        if (welcomeTimeEl) {
+          welcomeTimeEl.textContent = getCurrentTime();
+        }
+      }
+
+      function addMessage(content, isUser = false, messageId = null) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${isUser ? "user" : "bot"}`;
+        if (messageId) messageDiv.dataset.messageId = messageId;
+
+        const modeConfig = modes[currentMode];
+        const avatar = document.createElement("div");
+        avatar.className = "message-avatar";
+        avatar.innerHTML = isUser
+          ? '<i class="fas fa-user"></i>'
+          : `<i class="${modeConfig.icon}"></i>`;
+
+        const messageContent = document.createElement("div");
+        messageContent.className = "message-content";
+
+        if (!isUser) {
+          const formattedContent = formatBotMessage(content);
+          messageContent.innerHTML =
+            formattedContent +
+            `<div class="message-time">${getCurrentTime()}</div>`;
+        } else {
+          messageContent.innerHTML = `<p>${escapeHtml(
+            content
+          )}</p><div class="message-time">${getCurrentTime()}</div>`;
+        }
+
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(messageContent);
+
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function showTyping() {
+        const modeConfig = modes[currentMode];
+        document.querySelector(
+          "#typingIndicator .message-avatar"
+        ).innerHTML = `<i class="${modeConfig.icon}"></i>`;
+        document.getElementById(
+          "typingText"
+        ).textContent = `${modeConfig.title} is thinking...`;
+        typingIndicator.style.display = "flex";
+        scrollToBottom();
+      }
+
+      function hideTyping() {
+        typingIndicator.style.display = "none";
+      }
+
+      function showError(message, allowRetry = true, lastMessage = null) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error-message";
+        errorDiv.innerHTML = `
+                <p><i class="fas fa-exclamation-triangle"></i> ${message}</p>
+                ${
+                  allowRetry && lastMessage
+                    ? `<button style="margin-top: 8px; padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="retryMessage('${escapeHtml(
+                        lastMessage
+                      )}')"><i class="fas fa-redo"></i> Retry</button>`
+                    : ""
+                }
+            `;
+        chatMessages.appendChild(errorDiv);
+        scrollToBottom();
+
+        setTimeout(() => {
+          if (errorDiv.parentNode) {
+            errorDiv.remove();
+          }
+        }, 8000);
+      }
+
+      function retryMessage(message) {
+        const errorMessages = document.querySelectorAll(".error-message");
+        errorMessages.forEach((msg) => msg.remove());
+        processMessage(message, false);
+      }
+
+      // Enhanced API call with fallback responses
+      async function callAPI(message) {
+        try {
+          const response = await fetch(`${API_CONFIG.baseURL}/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: [
+                ...conversationHistory,
+                { role: "user", content: message },
+              ],
+              mode: currentMode,
+              maxTokens: 500,
+              temperature: 0.7,
+              responseStyle: userSettings.responseStyle || "detailed",
+            }),
+          });
+
+          if (!response.ok) throw new Error(`API error: ${response.status}`);
+          const data = await response.json();
+
+          if (data.response) return data.response;
+          throw new Error("Invalid API response format");
+        } catch (error) {
+          console.error("API call failed:", error);
+          if (API_CONFIG.fallbackEnabled) {
+            return generateFallbackResponse(message);
+          }
+          throw error;
+        }
+      }
+
+      function generateFallbackResponse(message) {
+        const msg = message.toLowerCase();
+
+        // Check if user is asking for a table
+        if (
+          msg.includes("table") ||
+          msg.includes("tabular") ||
+          (msg.includes("create") &&
+            (msg.includes("schedule") ||
+              msg.includes("plan") ||
+              msg.includes("comparison")))
+        ) {
+          return generateTableResponse(message);
+        }
+
+        const responses = {
+          education: {
+            keywords: [
+              "study",
+              "learn",
+              "education",
+              "school",
+              "exam",
+              "homework",
+            ],
+            response: `
+                        <h3><i class="fas fa-graduation-cap"></i> Study Strategy Recommendations</h3>
+                        <p>Here are some effective learning techniques I recommend:</p>
+                        <ul>
+                            <li><span class="highlight">Active Recall</span> - Test yourself regularly instead of just re-reading</li>
+                            <li><span class="highlight">Spaced Repetition</span> - Review material at increasing intervals</li>
+                            <li><span class="highlight">Pomodoro Technique</span> - Study in 25-minute focused sessions</li>
+                            <li><span class="highlight">Mind Mapping</span> - Create visual connections between concepts</li>
+                        </ul>
+                        <div class="tip-box">
+                            <strong>💡 Pro Tip:</strong> Combine multiple techniques for maximum effectiveness. What specific subject are you studying? I can also create tables to organize your study plan!
+                        </div>
+                    `,
+          },
+          health: {
+            keywords: [
+              "health",
+              "diet",
+              "exercise",
+              "wellness",
+              "nutrition",
+              "fitness",
+            ],
+            response: `
+                        <h3><i class="fas fa-heartbeat"></i> Wellness Guidelines</h3>
+                        <p>Here are fundamental health principles to follow:</p>
+                        <ul>
+                            <li><span class="highlight">Balanced Nutrition</span> - Include fruits, vegetables, proteins, and whole grains</li>
+                            <li><span class="highlight">Regular Exercise</span> - Aim for 150 minutes of moderate activity weekly</li>
+                            <li><span class="highlight">Adequate Sleep</span> - 7-9 hours of quality sleep per night</li>
+                            <li><span class="highlight">Stress Management</span> - Practice mindfulness and relaxation techniques</li>
+                        </ul>
+                        <div class="warning-box">
+                            <strong>⚠️ Remember:</strong> Always consult healthcare professionals for personalized medical advice. Ask me to create tables for meal plans or exercise schedules!
+                        </div>
+                    `,
+          },
+          relationship: {
+            keywords: [
+              "relationship",
+              "communication",
+              "friend",
+              "family",
+              "social",
+              "conflict",
+            ],
+            response: `
+                        <h3><i class="fas fa-heart"></i> Relationship Building Essentials</h3>
+                        <p>Strong relationships are built on these foundations:</p>
+                        <ul>
+                            <li><span class="highlight">Active Listening</span> - Give full attention and show empathy</li>
+                            <li><span class="highlight">Open Communication</span> - Express feelings honestly and respectfully</li>
+                            <li><span class="highlight">Mutual Respect</span> - Value differences and boundaries</li>
+                            <li><span class="highlight">Trust Building</span> - Be reliable and keep commitments</li>
+                        </ul>
+                        <div class="tip-box">
+                            <strong>💝 Key Insight:</strong> Healthy relationships require effort from all parties involved. Ask me to create tables for communication strategies or conflict resolution steps!
+                        </div>
+                    `,
+          },
+        };
+
+        const currentResponse = responses[currentMode];
+        const hasKeyword = currentResponse.keywords.some((keyword) =>
+          msg.includes(keyword)
+        );
+
+        if (hasKeyword || Math.random() > 0.5) {
+          return currentResponse.response;
+        }
+
+        return `
+            <h3><i class="fas fa-info-circle"></i> I'm here to help!</h3>
+            <p>I specialize in <span class="highlight">${modes[
+              currentMode
+            ].title.toLowerCase()}</span> topics. Could you rephrase your question to relate to this area?</p>
+            <div class="tip-box">
+                <strong>💡 Suggestion:</strong> Try using the quick action buttons below for common topics, or ask me to create tables for organized information!
+            </div>
+        `;
+      }
+
+      async function processMessage(message, addToHistory = true) {
+        if (addToHistory) {
+          conversationHistory.push({ role: "user", content: message });
+        }
+
+        try {
+          showTyping();
+          const response = await callAPI(message);
+          hideTyping();
+
+          addMessage(response);
+          conversationHistory.push({ role: "assistant", content: response });
+
+          // Auto-save to history
+          if (userSettings.autoSave !== false) {
+            saveToHistory();
+          }
+
+          if (conversationHistory.length > 25) {
+            conversationHistory = [
+              conversationHistory[0],
+              ...conversationHistory.slice(-24),
+            ];
+          }
+        } catch (error) {
+          hideTyping();
+          showError(
+            "Sorry, I encountered an error. Please try again.",
+            true,
+            message
+          );
+          console.error("Error:", error);
+        }
+      }
+
+      async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        sendBtn.disabled = true;
+        messageInput.disabled = true;
+
+        currentMessageId++;
+        addMessage(message, true, currentMessageId);
+
+        messageInput.value = "";
+        messageInput.style.height = "auto";
+
+        try {
+          await processMessage(message);
+        } finally {
+          sendBtn.disabled = false;
+          messageInput.disabled = false;
+          messageInput.focus();
+        }
+      }
+
+      function sendQuickMessage(message) {
+        messageInput.value = message;
+        sendMessage();
+      }
+
+      function clearChat() {
+        chatMessages.innerHTML = "";
+        // Save current conversation before clearing
+        if (conversationHistory.length > 1) {
+          saveToHistory();
+        }
+      }
+
+      function getCurrentModeWelcome() {
+        return `Tell me more about ${modes[currentMode].title.toLowerCase()}`;
+      }
+
+      // Event listeners
+      messageInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      messageInput.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = Math.min(this.scrollHeight, 120) + "px";
+      });
+
+      // Close modals when clicking outside
+      window.addEventListener("click", function (event) {
+        const modals = document.querySelectorAll(".modal");
+        modals.forEach((modal) => {
+          if (event.target === modal) {
+            modal.style.display = "none";
+          }
+        });
+      });
+
+      // Initialize app
+      document.addEventListener("DOMContentLoaded", initializeApp);
+
+      // Auto-save settings periodically
+      setInterval(saveUserSettings, 30000); // Save every 30 seconds
+    </script>
+  </body>
+</html>
