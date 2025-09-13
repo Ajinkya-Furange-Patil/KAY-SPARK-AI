@@ -8,6 +8,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
+    <link rel="shortcut icon" href="logo.jpg" type="image/x-icon" />
+
     <style>
       * {
         margin: 0;
@@ -597,7 +599,7 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
       }
 
-      /* Table Styling */
+      /* Table Styling - Improved */
       .message-content table {
         width: 100%;
         border-collapse: collapse;
@@ -613,17 +615,19 @@
       .message-content table th {
         background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        padding: 0.6rem 0.8rem;
+        padding: 0.8rem 1rem;
         font-weight: 600;
         text-align: left;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
       }
 
       .message-content table td {
-        padding: 0.5rem 0.8rem;
+        padding: 0.7rem 1rem;
         border-bottom: 1px solid rgba(102, 126, 234, 0.08);
-        font-size: 0.7rem;
-        line-height: 1.4;
+        font-size: 0.73rem;
+        line-height: 1.5;
+        vertical-align: top;
       }
 
       .message-content table tr:last-child td {
@@ -632,6 +636,50 @@
 
       .message-content table tr:hover {
         background: rgba(102, 126, 234, 0.02);
+      }
+
+      /* Table Responsive Wrapper - Enhanced */
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(102, 126, 234, 0.08);
+      }
+
+      .table-responsive table {
+        width: 100%;
+        margin: 0;
+        border-radius: 8px;
+        min-width: 600px;
+      }
+
+      /* Mobile table adjustments */
+      @media (max-width: 768px) {
+        .table-responsive table {
+          min-width: 500px;
+          font-size: 0.7rem;
+        }
+
+        .message-content table th,
+        .message-content table td {
+          padding: 0.5rem 0.7rem;
+          font-size: 0.65rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .table-responsive table {
+          min-width: 400px;
+        }
+
+        .message-content table th,
+        .message-content table td {
+          padding: 0.4rem 0.6rem;
+          font-size: 0.6rem;
+        }
       }
 
       /* Typing Indicator */
@@ -794,6 +842,26 @@
       .chat-history::-webkit-scrollbar-thumb {
         background: linear-gradient(135deg, #667eea, #764ba2);
         border-radius: 2px;
+      }
+
+      /* Prevent CSS code from showing in messages */
+      .message-content code.table-responsive {
+        display: none !important;
+      }
+
+      .message-content p:empty {
+        display: none;
+      }
+
+      /* Better code formatting */
+      .message-content code {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.75rem;
+        color: #667eea;
+        border: 1px solid rgba(102, 126, 234, 0.15);
       }
 
       /* Animations */
@@ -1972,26 +2040,28 @@ Always be thorough, practical, and focused on helping users advance their career
       }
 
       function formatMessage(content) {
-        // Convert “## Heading” to <h2>
+        // Convert "## Heading" to <h2>
         content = content.replace(
           /^##\s(.+)$/gm,
           '<h2 style="color:#667eea; font-size:1rem; margin:1rem 0;">$1</h2>'
         );
 
-        // Convert “> quote” to <blockquote>
+        // Convert "> quote" to <blockquote>
         content = content.replace(
           /^>\s(.+)$/gm,
           '<blockquote style="border-left:3px solid #667eea; margin:0.8rem 0; padding-left:1rem; color:#4a5568;">$1</blockquote>'
         );
 
-        // Existing conversions...
+        // Convert markdown tables first
         content = convertMarkdownTables(content);
+
+        // Apply other formatting
         return content
           .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
           .replace(/\*([^*]+)\*/g, "<em>$1</em>")
           .replace(
             /`([^`]+)`/g,
-            '<code style="background:rgba(102,126,234,0.1);padding:2px 4px;border-radius:3px;font-family:monospace;font-size:0.75rem;" class="table-responsive">$1</code>'
+            '<code style="background:rgba(102,126,234,0.1);padding:2px 4px;border-radius:3px;font-family:monospace;font-size:0.75rem;">$1</code>'
           )
           .replace(/\n\n/g, "</p><p>")
           .replace(/\n/g, "<br>")
@@ -2046,7 +2116,8 @@ Always be thorough, practical, and focused on helping users advance their career
       function convertTableRowsToHTML(rows) {
         if (rows.length === 0) return "";
 
-        let html = "<table class='table-responsive' style='width:100%;border-collapse:collapse;margin:1rem 0;'><tbody>";
+        let html = "<div class='table-responsive'><table>";
+        let isFirstRow = true;
 
         for (let i = 0; i < rows.length; i++) {
           const cells = rows[i]
@@ -2054,12 +2125,15 @@ Always be thorough, practical, and focused on helping users advance their career
             .map((cell) => cell.trim())
             .filter((cell) => cell !== "");
 
-          if (i === 0) {
+          if (cells.length === 0) continue;
+
+          if (isFirstRow) {
             html += "<thead><tr>";
             for (const cell of cells) {
               html += `<th>${cell}</th>`;
             }
             html += "</tr></thead><tbody>";
+            isFirstRow = false;
           } else {
             html += "<tr>";
             for (const cell of cells) {
@@ -2069,7 +2143,7 @@ Always be thorough, practical, and focused on helping users advance their career
           }
         }
 
-        html += "</tbody></table>";
+        html += "</tbody></table></div>";
         return html;
       }
 

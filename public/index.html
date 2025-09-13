@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KAY SPARK - Smart Skill Gap Analysis & Course Recommendations</title>
+    <title>Welcome KAY SPARK - Smart Skill Gap Analysis & Course Recommendations</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
+    <link rel="shortcut icon" href="logo.jpg" type="image/x-icon">
     <style>
       * {
         margin: 0;
@@ -75,7 +76,11 @@
 
       /* Hero Section */
       .hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+        background: url(https://www.shutterstock.com/image-vector/increasing-creativity-level-wireframe-hand-260nw-1752010763.jpg);
+        background-size: cover;
+        /* image-rendering: crisp-edges; */
+        background-repeat: no-repeat;
         color: white;
         padding: 120px 0 80px;
         text-align: center;
@@ -115,6 +120,7 @@
         transition: all 0.3s;
         animation: fadeInUp 1s ease-out 0.4s both;
         box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        gap: 30px;
       }
 
       .cta-button:hover {
@@ -291,7 +297,10 @@
         .features-grid {
           grid-template-columns: 1fr;
         }
-
+        /* Chat Button */
+      .chat-btn {
+        margin-top: 20px;
+      }
         .analysis-grid {
           grid-template-columns: 1fr;
         }
@@ -365,7 +374,7 @@
           courses or certifications to fill those gaps instantly.
         </p>
         <a href="#features" class="cta-button">Discover Your Potential</a>
-        <a href="chat.html" class="cta-button">Chat Now</a>
+        <a href="chat.html" class="cta-button" style="margin: 10px; "><i class="fas fa-comments"></i>Chat Now</a>
       </div>
     </section>
 
@@ -510,9 +519,9 @@
     </footer>
 
     <!-- Chat Button -->
-    <a href="chat.html" class="chat-btn" title="Start Chat">
+    <!-- <a href="chat.html" class="chat-btn" title="Start Chat">
       <i class="fas fa-comments"></i>
-    </a>
+    </a> -->
 
     <script>
       // Smooth scrolling for navigation links
